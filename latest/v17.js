@@ -8,7 +8,7 @@
   function now(){return '今日 10:48'}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]})}
   function tag(v,type){return '<span class="tag '+(type||'info')+'">'+esc(v)+'</span>'}
-  function currentPatient(){return S.patientId||(STORE.appointments[0]&&STORE.appointments[0].patientId)||'8A01'}
+  function currentPatient(){var candidate=S.patientId;if(candidate==='PAT-1001'&&!STORE.reports.some(function(r){return r.patientId===candidate}))candidate='8A01';return candidate||(STORE.appointments[0]&&STORE.appointments[0].patientId)||'8A01'}
   function currentEncounter(){return S.encounterId||'ENC-20261007-001'}
   S.patientId=currentPatient();S.encounterId=currentEncounter();
   (STORE.reports||[]).forEach(function(r){if(!r.encounterId)r.encounterId=r.patientId===S.patientId?S.encounterId:'ENC-DEMO-'+r.patientId});
