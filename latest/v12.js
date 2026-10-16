@@ -36,7 +36,7 @@
   function v12Commit(){V12_STATE.feedback='已更新状态并同步相关工作台、患者进度和消息记录';render()}
   function v12FindPatient(id){return V12_STORE.patients.find(function(p){return p.id===id})||V12_STORE.patients[0]}
   function v12FindExam(id){return V12_STORE.exams.find(function(x){return x.id===id})||V12_STORE.exams[0]}
-  function v12FindReport(id){return V12_STORE.reports.find(function(x){return x.id===id})||V12_STORE.reports[0]}
+  function v12FindReport(id){return V12_STORE.reports.find(function(x){return x.id===id})||{id:id,patientId:'',project:'当前范围内无报告',status:'权限拒绝',result:'—',reference:'—',doctor:'—',issuedAt:'未知'}}
   function v12StateBar(){return '<div class="v11-chips"><button class="v11-chip '+(V12_STATE.display==='normal'?'on':'')+'" onclick="v12SetDisplay(\'normal\')">正常</button><button class="v11-chip '+(V12_STATE.display==='empty'?'on':'')+'" onclick="v12SetDisplay(\'empty\')">空态</button><button class="v11-chip '+(V12_STATE.display==='error'?'on':'')+'" onclick="v12SetDisplay(\'error\')">错误</button><button class="v11-chip '+(V12_STATE.display==='permission'?'on':'')+'" onclick="v12SetDisplay(\'permission\')">权限态</button></div>'}
   function v12DisplayState(){if(V12_STATE.display==='empty')return '<div class="v11-info">当前筛选范围内暂无记录。可清除筛选或回到全部任务。</div>';if(V12_STATE.display==='error')return '<div class="v11-alert">数据同步失败，最后一次有效数据时间：2026-10-11 10:18。<button class="btn sm" onclick="v12SetDisplay(\'normal\')">重试</button></div>';if(V12_STATE.display==='permission')return '<div class="v11-info">当前角色无权访问该范围数据。</div>';return null}
   function v12SetDisplay(v){V12_STATE.display=v;render()}
