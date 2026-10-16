@@ -4,7 +4,9 @@
   if(!S||!STORE)return;
   var V={selectedReportId:'',display:'normal',exportStatus:'未申请'};
   try{var saved=sessionStorage.getItem('somi-v19-state');if(saved)Object.assign(V,JSON.parse(saved))}catch(_){ }
-  function save(){try{sessionStorage.setItem('somi-v19-state',JSON.stringify(V));sessionStorage.setItem('somi-v17-unified-state',JSON.stringify(U))}catch(_){} }
+  function restoreStore(){try{var saved=sessionStorage.getItem('somi-v19-store');if(!saved)return;var x=JSON.parse(saved);['reports','criticals','messages','followups','patients','exams'].forEach(function(k){if(Array.isArray(x[k]))STORE[k]=x[k]})}catch(_){} }
+  function save(){try{sessionStorage.setItem('somi-v19-state',JSON.stringify(V));sessionStorage.setItem('somi-v17-unified-state',JSON.stringify(U));sessionStorage.setItem('somi-v19-store',JSON.stringify({reports:STORE.reports,criticals:STORE.criticals,messages:STORE.messages,followups:STORE.followups,patients:STORE.patients,exams:STORE.exams}))}catch(_){} }
+  restoreStore();
   function now(){return '今日 10:48'}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]})}
   function btn(label,call,cls){return '<button class="btn '+(cls||'')+'" onclick="'+call+'">'+label+'</button>'}
@@ -22,10 +24,12 @@
   function renderGovernance(){var page=document.getElementById('page');if(page)page.innerHTML=governancePage()}
   function v19Governance(action){if(['normal','loading','empty','error','permission'].includes(action)){var before=V.display;V.display=action;audit('切换五态','治理页','GOV-V19','验证页面状态',before,action);renderGovernance();return}if(action==='export-preview'){V.exportStatus='预览已生成';audit('生成导出预览','导出','EXPORT-V19','字段范围、脱敏和用途已记录');renderGovernance();return}if(action==='export-file'){var csv='对象,患者,就诊事件,状态,生成时间\n报告,'+(S.patientId||'8A01')+','+(S.encounterId||'ENC-20261007-001')+','+(currentReport()&&currentReport().status||'未知')+','+now();var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='闭环治理演示导出.csv';a.click();audit('生成演示导出文件','导出','EXPORT-V19','已生成脱敏 CSV 演示文件');renderGovernance()}}
   function v19Back(){v19Module('dashboard')}
+  var oldLogin=window.v141Login;
+  function v19Login(){var account=(document.getElementById('v141Account')||{}).value||'',dept=(document.getElementById('v141Dept')||{}).value||'',expected=account.indexOf('outpatient')===0?'门诊服务台':account.indexOf('tech')===0?'检验科':account.indexOf('admin')===0?'全院运营':account.indexOf('patient')===0?'患者本人':'8A 呼吸内科病区';if(account&&dept&&dept!==expected){alert('账号与科室/病区不匹配，请选择：'+expected);return}if(oldLogin)return oldLogin()}
   var oldModule=window.v141Module,oldModule2=window.v14SetModule,oldSub=window.v141Sub,oldSub2=window.v14SetSub;
   function v19Module(m){if(m==='v19-lab'){S.module=m;S.sub='detail';renderLab();return}if(m==='v19-critical'){S.module=m;S.sub='detail';renderCritical();return}if(m==='v19-governance'){S.module=m;S.sub='detail';renderGovernance();return}if(oldModule)oldModule(m);else if(oldModule2)oldModule2(m)}
   function v19Sub(s){if(S.module==='v19-lab'){renderLab();return}if(S.module==='v19-critical'){renderCritical();return}if(S.module==='v19-governance'){renderGovernance();return}if(oldSub)oldSub(s);else if(oldSub2)oldSub2(s)}
-  window.v19SelectReport=function(id){V.selectedReportId=id;save();renderLab()};window.v19LabAction=labAction;window.v19CriticalAction=criticalAction;window.v19Governance=v19Governance;window.v19Module=v19Module;window.v19Back=v19Back;window.v141Module=v19Module;window.v14SetModule=v19Module;window.v141Sub=v19Sub;window.v14SetSub=v19Sub;
+  window.v19SelectReport=function(id){V.selectedReportId=id;save();renderLab()};window.v19LabAction=labAction;window.v19CriticalAction=criticalAction;window.v19Governance=v19Governance;window.v19Module=v19Module;window.v19Back=v19Back;window.v141Login=v19Login;window.v141Module=v19Module;window.v14SetModule=v19Module;window.v141Sub=v19Sub;window.v14SetSub=v19Sub;
   if(R){if(R.lab&&!R.lab.nav.some(function(x){return x[0]==='v19-lab'}))R.lab.nav.push(['v19-lab','报告安全发布']);if(R.nurse&&!R.nurse.nav.some(function(x){return x[0]==='v19-critical'}))R.nurse.nav.push(['v19-critical','危急值安全闭环']);if(R.admin&&!R.admin.nav.some(function(x){return x[0]==='v19-governance'}))R.admin.nav.push(['v19-governance','闭环治理'])}
   if(M){M.lab=M.lab||{};M.lab['v19-lab']=[['detail','报告安全发布']];M.nurse=M.nurse||{};M.nurse['v19-critical']=[['detail','危急值安全闭环']];M.admin=M.admin||{};M.admin['v19-governance']=[['detail','闭环治理与审计']]}
   if(S.role==='lab'&&S.module==='v19-lab')renderLab();if(S.role==='nurse'&&S.module==='v19-critical')renderCritical();if(S.role==='admin'&&S.module==='v19-governance')renderGovernance();
