@@ -39,7 +39,7 @@
     { id: 'ACC-002', name: '周明远', role: '医生', org: '呼吸内科', scope: '本人接诊范围', status: '启用' },
     { id: 'ACC-003', name: '周某', role: '医技', org: '检验科', scope: '本科室订单', status: '启用' }
   ], audits: [] };
-  try { const saved = JSON.parse(sessionStorage.getItem('somi-v20b') || '{}'); Object.assign(state, saved.state || {}); Object.assign(store, saved.store || {}); } catch (_) {}
+  try { const saved = JSON.parse(sessionStorage.getItem('somi-v20b') || '{}'); Object.assign(state, saved.state || {}); if (saved.store?.patients?.length) Object.assign(store, saved.store); } catch (_) {}
   const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
   const now = () => '今日 10:48';
   const patient = (id) => store.patients.find((p) => p.id === id || p.patientId === id) || store.patients[0];
