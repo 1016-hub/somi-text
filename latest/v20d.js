@@ -7,4 +7,10 @@
     if (typeof window.v20Action === 'function') window.v20Action('nurse-home');
     return result;
   };
+  document.addEventListener('click', function (event) {
+    const button = event.target.closest('button');
+    if (button && button.textContent.trim() === '登录') {
+      setTimeout(function () { if (typeof window.v20Action === 'function') window.v20Action('nurse-home'); }, 0);
+    }
+  }, true);
 })();
