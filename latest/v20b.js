@@ -8,7 +8,15 @@
     admin: { name: '管理端', nav: [['admin-dashboard', '运营总览'], ['admin-patients', '患者与就诊'], ['admin-reports', '检查与报告'], ['admin-feedback', '服务与反馈'], ['admin-quality', '质量与流程'], ['admin-accounts', '账号管理'], ['admin-roles', '角色权限'], ['admin-audit', '操作审计']] },
     patient: { name: '患者／家属端', nav: [] }
   };
-  const seedPatients = (window.v11Patients || []).map((p) => ({
+  const seedSource = window.v11Patients || window.V12_STORE?.patients || [
+    { id: '8A01', name: '王晓梅', gender: '女', age: 58, bed: '8A-12', dept: '呼吸内科', stage: '检查中', check: '肺功能检查 · 已预约 09:20', report: '待出报告', alert: '无', doctor: '周明远', next: '完成检查准备', exam: '肺功能检查', location: '肺功能室', reportTime: '—' },
+    { id: '8A02', name: '陈建国', gender: '男', age: 64, bed: '8A-08', dept: '呼吸内科', stage: '报告待查看', check: '动脉血气分析 · 已完成', report: '待医生查看', alert: '无', doctor: '周明远', next: '医生确认报告', exam: '动脉血气分析', location: '检验科急诊窗口', reportTime: '今日 09:40' },
+    { id: '8A05', name: '赵敏', gender: '女', age: 47, bed: '8A-16', dept: '呼吸内科', stage: '危急值待确认', check: '胸部 CT · 已完成', report: '异常报告', alert: '血氧饱和度 88%', doctor: '周明远', next: '立即通知医生', exam: '胸部 CT', location: '影像科 CT-2 室', reportTime: '今日 10:10' },
+    { id: '8A07', name: '周文静', gender: '女', age: 52, bed: '8A-03', dept: '呼吸内科', stage: '复查待安排', check: '痰培养 · 已完成', report: '已出报告', alert: '需结合药敏结果', doctor: '周明远', next: '安排 7 日复查', exam: '痰培养', location: '检验科标本接收处', reportTime: '昨日 16:20' },
+    { id: '8A09', name: '孙磊', gender: '男', age: 39, bed: '8A-21', dept: '呼吸内科', stage: '待检查', check: '胸部 CT · 待预约', report: '—', alert: '无', doctor: '周明远', next: '协调检查时间', exam: '胸部 CT', location: '影像科 CT-2 室', reportTime: '—' },
+    { id: '8A13', name: '黄涛', gender: '男', age: 45, bed: '8A-19', dept: '全科医学科', stage: '已完成', check: '血钾复查 · 已完成', report: '已出报告', alert: '无', doctor: '陈立', next: '复查结果归档', exam: '血钾复查', location: '检验科采血窗口', reportTime: '昨日 14:05' }
+  ];
+  const seedPatients = seedSource.map((p) => ({
     ...p,
     patientId: p.id,
     encounterId: `ENC-${p.id}`,
