@@ -18,6 +18,16 @@
   ];
   const seedPatients = seedSource.map((p) => ({
     ...p,
+    bed: p.bed || p.id,
+    dept: p.dept || '呼吸内科',
+    stage: p.stage || '待检查',
+    check: p.check || p.exam || '待检查',
+    report: p.report || '待出报告',
+    alert: p.alert || '无',
+    doctor: p.doctor || '周明远',
+    next: p.next || '完成下一步责任任务',
+    exam: p.exam || '检查服务',
+    location: p.location || '检查中心',
     patientId: p.id,
     encounterId: `ENC-${p.id}`,
     appointmentStatus: p.stage === '预约待确认' ? '待确认' : '已签到',
