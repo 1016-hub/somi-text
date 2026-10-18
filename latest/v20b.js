@@ -77,6 +77,7 @@
   window.v20Action = v20Action;
   window.v20bState = state;
   window.v20bStore = store;
+  window.render = render;
   renderV11 = render;
   render();
 })();
