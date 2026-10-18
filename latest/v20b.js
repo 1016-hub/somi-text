@@ -21,10 +21,10 @@
     patientId: p.id,
     encounterId: `ENC-${p.id}`,
     appointmentStatus: p.stage === '预约待确认' ? '待确认' : '已签到',
-    examStatus: p.check.includes('已完成') ? '已完成待出报告' : p.check.includes('已预约') ? '待身份核对' : '待准备',
-    reportFlow: p.report === '已出报告' || p.report === '异常报告' ? '已发布' : p.report === '待医生查看' ? '医生待确认' : '待出报告',
-    riskLevel: p.alert !== '无' ? '危急值' : p.report === '异常报告' ? '异常' : '正常',
-    doctorConfirmed: p.report === '已确认'
+    examStatus: (p.check || '').includes('已完成') ? '已完成待出报告' : (p.check || '').includes('已预约') ? '待身份核对' : '待准备',
+    reportFlow: (p.report || '') === '已出报告' || (p.report || '') === '异常报告' ? '已发布' : (p.report || '') === '待医生查看' ? '医生待确认' : '待出报告',
+    riskLevel: (p.alert || '无') !== '无' ? '危急值' : (p.report || '') === '异常报告' ? '异常' : '正常',
+    doctorConfirmed: (p.report || '') === '已确认'
   }));
   const state = { role: 'nurse', route: 'nurse-home', selected: '8A01', selectedSlot: '', period: '今日', reportFilter: '全部', notice: '', patientPage: 'home', patientAppointment: null, view: 'normal' };
   const store = { patients: seedPatients, slots: [
