@@ -349,6 +349,6 @@ render();
   document.getElementById('unifiedLoginForm').addEventListener('submit',function(e){e.preventDefault();const input={account:account.value.trim(),password:document.getElementById('gatePassword').value,hospital:document.getElementById('gateHospital').value,scope:dept.value,role:role.value},result=validateLogin(input);if(!result.ok){showLoginError(result.message);return}error.style.display='none';sessionStorage.setItem('yilu-auth-session',JSON.stringify({account:input.account,role:input.role,hospital:input.hospital,scope:input.scope,loggedAt:Date.now()}));sessionStorage.removeItem('somi-v20b');if(window.v20bState){window.v20bState.notice='';window.v20bState.selected='';window.v20bState.filter='all';window.v20bState.view='normal'}if(protectedApp&&!protectedApp.isConnected)document.body.appendChild(protectedApp);document.getElementById('unifiedLogin').style.display='none';if(typeof window.v20Action==='function'){window.v20Action('role:'+result.profile.role);return}app.role=result.profile.role;app.route=result.profile.role+'-0';if(result.profile.role==='patient'){v11Patient.loggedIn=true;v11Patient.page='home';v11Patient.query='';v11Patient.doctorId=null;v11Patient.appointment=null}render();});
 })();
 </script>
-<script src="compliance-v1.js?v=20261101-authfix-3"></script>
+<script src="v21.js?v=20261101-chartlabels-public2"></script>\n<script src="compliance-v1.js?v=20261101-authfix-3"></script>
 </body>
 </html>
