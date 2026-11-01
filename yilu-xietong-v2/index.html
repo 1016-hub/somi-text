@@ -437,10 +437,27 @@ render();
     if(action==='patient-complaint'){openModal('<div class="modalhead"><h2>我的投诉</h2><button class="close" onclick="closeModal()">×</button></div><div class="fieldgrid"><div class="field"><label>投诉编号</label><strong>CMP-20261101-01</strong></div><div class="field"><label>当前状态</label><strong>待患者确认</strong></div><div class="field"><label>处理记录</label><strong>门诊服务中心已完成流程说明</strong></div><div class="field"><label>下一步</label><strong>确认满意或发起复议</strong></div></div><div class="modalactions"><button class="btn" onclick="prototypeAuthAction(\'复议中\')">发起复议</button><button class="btn primary" onclick="prototypeAuthAction(\'已关闭\')">确认满意</button></div>');return}
     originalV20Action(action);if(action==='patient-complaint'){document.querySelector('.v20-notice')?.remove()}
   }}
-  const accounts={patient:'patient01',nurse:'inpatient01',outpatient:'outpatient01',doctor:'doctor01',lab:'lab01',admin:'admin01'};
+  const AUTH_PROFILES={
+    patient:{account:'patient01',password:'demo123',role:'patient',hospital:'enze',scope:'later'},
+    nurse:{account:'inpatient01',password:'demo123',role:'nurse',hospital:'enze',scope:'8a'},
+    outpatient:{account:'outpatient01',password:'demo123',role:'outpatient',hospital:'enze',scope:'op'},
+    doctor:{account:'doctor01',password:'demo123',role:'doctor',hospital:'enze',scope:'op'},
+    lab:{account:'lab01',password:'demo123',role:'lab',hospital:'enze',scope:'lab'},
+    admin:{account:'admin01',password:'demo123',role:'admin',hospital:'enze',scope:'admin'}
+  };
   const role=document.getElementById('gateRole'),dept=document.getElementById('gateDepartment'),account=document.getElementById('gateAccount'),error=document.getElementById('gateError');
-  role.addEventListener('change',function(){account.value=accounts[this.value]||'';const w=document.getElementById('gateDepartmentWrap'),l=document.getElementById('gateDepartmentLabel');if(this.value==='patient'){dept.value='later';w.style.display='none'}else{w.style.display='block';if(dept.value==='later')dept.value='';l.textContent=this.value==='admin'?'院区/管理范围':'科室/病区';if(this.value==='admin')dept.value='admin'}});
-  document.getElementById('unifiedLoginForm').addEventListener('submit',function(e){e.preventDefault();const r=role.value,p=document.getElementById('gatePassword').value,h=document.getElementById('gateHospital').value,d=dept.value;if(!r||!h||!d){error.textContent='请完成医院、科室/病区和身份选择。';error.style.display='block';return}if(account.value!==accounts[r]||p!=='演示凭据已脱敏'){error.textContent='账号或密码不正确。';error.style.display='block';return}if(r==='patient'&&d!=='later'){error.textContent='患者端不在登录时锁定科室，请选择“患者预约时选择”。';error.style.display='block';return}error.style.display='none';sessionStorage.removeItem('somi-v20b');if(window.v20bState){window.v20bState.notice='';window.v20bState.selected='';window.v20bState.filter='all';window.v20bState.view='normal'}if(protectedApp&&!protectedApp.isConnected)document.body.appendChild(protectedApp);document.getElementById('unifiedLogin').style.display='none';if(typeof window.v20Action==='function'){window.v20Action('role:'+r);return}app.role=r;app.route=r+'-0';if(r==='patient'){v11Patient.loggedIn=true;v11Patient.page='home';v11Patient.query='';v11Patient.doctorId=null;v11Patient.appointment=null}render();});
+  function showLoginError(message){error.textContent=message;error.style.display='block'}
+  function validateLogin(input){
+    const profile=Object.values(AUTH_PROFILES).find(x=>x.account===input.account);
+    if(!profile)return {ok:false,message:'账号不存在，请选择身份后使用对应演示账号。'};
+    if(profile.password!==input.password)return {ok:false,message:'密码错误。所有演示账号密码统一为 demo123。'};
+    if(profile.role!==input.role)return {ok:false,message:'账号与所选角色不匹配，请重新选择角色。'};
+    if(profile.hospital!==input.hospital)return {ok:false,message:'该账号不属于当前医院。'};
+    if(profile.scope!==input.scope)return {ok:false,message:'账号与医院/范围不匹配，请按账号选择对应范围。'};
+    return {ok:true,profile};
+  }
+  role.addEventListener('change',function(){const p=AUTH_PROFILES[this.value];account.value=p?.account||'';const w=document.getElementById('gateDepartmentWrap'),l=document.getElementById('gateDepartmentLabel');if(this.value==='patient'){dept.value='later';w.style.display='none'}else{w.style.display='block';dept.value=p?.scope||'';l.textContent=this.value==='admin'?'院区/管理范围':'科室/病区'}});
+  document.getElementById('unifiedLoginForm').addEventListener('submit',function(e){e.preventDefault();const input={account:account.value.trim(),password:document.getElementById('gatePassword').value,hospital:document.getElementById('gateHospital').value,scope:dept.value,role:role.value},result=validateLogin(input);if(!result.ok){showLoginError(result.message);return}error.style.display='none';sessionStorage.setItem('yilu-auth-session',JSON.stringify({account:input.account,role:input.role,hospital:input.hospital,scope:input.scope,loggedAt:Date.now()}));sessionStorage.removeItem('somi-v20b');if(window.v20bState){window.v20bState.notice='';window.v20bState.selected='';window.v20bState.filter='all';window.v20bState.view='normal'}if(protectedApp&&!protectedApp.isConnected)document.body.appendChild(protectedApp);document.getElementById('unifiedLogin').style.display='none';if(typeof window.v20Action==='function'){window.v20Action('role:'+result.profile.role);return}app.role=result.profile.role;app.route=result.profile.role+'-0';if(result.profile.role==='patient'){v11Patient.loggedIn=true;v11Patient.page='home';v11Patient.query='';v11Patient.doctorId=null;v11Patient.appointment=null}render();});
 })();
 </script>
 <script src="compliance-v1.js?v=20261101-baseline1"></script>
