@@ -5,14 +5,13 @@
   const raw=window.v20Action;
   const users={nurse:['李护士','住院护士'],outpatient:['陈护士','门诊护士'],doctor:['医生甲','医生'],lab:['林技师','检验人员'],admin:['王管理员','安全管理员']};
   const hi=/^(slot-publish|slot-close|patient-book|critical-close|account-toggle):?/;
-  let pending='',validateAction='',sessionRemaining=1680,sessionWarned=false;
+  let pending='',validateAction='';
   const tag=(s,c='info')=>`<span class="tag ${c}">${s}</span>`;
   const card=(title,body)=>`<section class="v20-card"><h2>${title}</h2>${body}</section>`;
   const title=(h,s)=>`<div class="title"><div><h1>${h}</h1><p>${s}</p></div></div>`;
   const stableId=p=>'PAT-'+String(1001+Math.max(0,store.patients.findIndex(x=>x.id===p.id))).padStart(4,'0');
   const log=(action,object,before,after,result='成功')=>{state.auditLog||=[];state.auditLog.unshift({time:'2026-11-01 17:06',account:state.role==='outpatient'?'outpatient01':state.role==='nurse'?'inpatient01':state.role==='doctor'?'doctor01':state.role==='lab'?'lab01':'admin01',action,object,before,after,result,device:'WEB-'+state.role.toUpperCase()+'-01'})};
   window.complianceConfirm=function(){const a=pending;pending='';closeModal();raw(a);setTimeout(apply,0)};
-  window.prototypeExtendSession=function(){sessionRemaining=1680;sessionWarned=false;closeModal();top()};
   window.complianceValidateSlot=function(){const a=validateAction;validateAction='';state.slotDirty=false;closeModal();raw(a);openInfo('冲突校验通过',a.split(':')[1]+' · 2026-11-01 16:28 · 医生排班、停诊、诊室、日期时段、数量上限、重复号源和发布窗口均通过。')};
   window.v20Action=function(action){
     if(action==='nurse-reports'){state.detailOpen=false;state.patientReportOpen=false;}
@@ -30,8 +29,7 @@
     if(t.dataset.sessionRole===state.role&&t.querySelector('.session-group'))return;
     t.dataset.sessionRole=state.role;
     const u=users[state.role]||['当前用户','当前岗位'];
-    const mm=String(Math.floor(sessionRemaining/60)).padStart(2,'0'),ss=String(sessionRemaining%60).padStart(2,'0');
-    t.innerHTML=`<span class="session-group"><button class="toplink notice" onclick="v20Action('${state.role==='doctor'?'doctor-messages':state.role==='nurse'?'nurse-messages':state.role==='outpatient'?'outpatient-notifications':state.role==='admin'?'admin-audit':'lab-sync'}')">消息中心 <b>${store.notifications.filter(x=>x.status==='未读').length}</b></button></span><span class="session-group"><span>本院区</span><span><i class="avatar">${u[0][0]}</i>${u[0]} · ${u[1]}</span></span><span class="session-group"><span id="sessionCountdown" class="session-pill">⏱ 会话剩余 ${mm}:${ss}</span><button class="session-btn" onclick="prototypeLock()">🔒 临时锁屏</button><button class="session-btn logout" onclick="prototypeConfirmLogout()">↪ 退出登录</button></span>`;
+    t.innerHTML=`<span class="session-group"><button class="toplink notice" onclick="v20Action('${state.role==='doctor'?'doctor-messages':state.role==='nurse'?'nurse-messages':state.role==='outpatient'?'outpatient-notifications':state.role==='admin'?'admin-audit':'lab-sync'}')">消息中心 <b>${store.notifications.filter(x=>x.status==='未读').length}</b></button></span><span class="session-group"><span>本院区</span><span><i class="avatar">${u[0][0]}</i>${u[0]} · ${u[1]}</span></span><span class="session-group"><button class="session-btn" onclick="prototypeLock()">🔒 临时锁屏</button><button class="session-btn logout" onclick="prototypeConfirmLogout()">↪ 退出登录</button></span>`;
   }
   function clean(){
     document.querySelectorAll('.v20-card').forEach(c=>{if(c.querySelector('h2')?.textContent.trim()==='状态回放')c.remove()});
@@ -115,7 +113,7 @@
     let body=state.role==='nurse'?nurseV3(route):state.role==='doctor'?doctor(route):state.role==='outpatient'?outpatientV3(route):state.role==='lab'?lab(route):state.role==='admin'?admin(route):null;
     if(body&&page.dataset.complianceRoute!==route){page.dataset.complianceRoute=route;page.innerHTML=`<main class="v11-work" style="width:100%;max-width:1600px;margin:0 auto">${body}</main>`;clean();identityExceptions();reportSamples();if(route==='admin-roles')roleTemplate()}
   }
-  document.addEventListener('click',function(e){const b=e.target.closest('button');if(!b)return;if(!b.classList.contains('session-btn')&&document.getElementById('unifiedLogin')?.style.display==='none'){sessionRemaining=1680;sessionWarned=false}if(b.dataset.busy==='1'){e.preventDefault();e.stopImmediatePropagation();return}b.dataset.busy='1';setTimeout(()=>{b.dataset.busy='0'},650);const a=b.dataset.cact;if(!a)return;setTimeout(()=>custom(a,b),0)},true);
+  document.addEventListener('click',function(e){const b=e.target.closest('button');if(!b)return;if(b.dataset.busy==='1'){e.preventDefault();e.stopImmediatePropagation();return}b.dataset.busy='1';setTimeout(()=>{b.dataset.busy='0'},650);const a=b.dataset.cact;if(!a)return;setTimeout(()=>custom(a,b),0)},true);
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.querySelector('.modalMask.show')){closeModal();e.preventDefault()}});
   document.addEventListener('input',function(e){if(e.target.id!=='resultValue')return;const v=Number(e.target.value),f=document.getElementById('resultFlag');if(!f)return;const label=!e.target.value?'待录入':v<2.8||v>6.5?'危急值':v<3.5?'低':v>5.5?'高':'正常';f.className=label==='危急值'?'v20-danger':'v20-success';f.textContent='自动判定：'+label+(label==='危急值'?'；提交审核前必须完成复核，不会直接发布。':'')});
   document.addEventListener('change',function(e){if(['slotDoctor','slotDept','slotDate','slotTime','slotTotal'].includes(e.target.id))state.slotDirty=true;if(e.target.id==='permRole')roleTemplate()});
@@ -164,6 +162,5 @@
   }
   function modalFocus(){const m=document.querySelector('.modalMask.show .modal');if(m&&!m.dataset.focused){m.dataset.focused='1';(m.querySelector('input,select,textarea,button')||m).focus()}if(!m)document.querySelectorAll('.modal[data-focused]').forEach(x=>delete x.dataset.focused)}
   const observer=new MutationObserver(()=>requestAnimationFrame(()=>{apply();modalFocus()}));observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
-  setInterval(()=>{if(!document.querySelector('.app')||document.getElementById('unifiedLogin')?.style.display!=='none')return;if(sessionRemaining>0)sessionRemaining--;const el=document.getElementById('sessionCountdown');if(el){const m=String(Math.floor(sessionRemaining/60)).padStart(2,'0'),s=String(sessionRemaining%60).padStart(2,'0');el.textContent=`⏱ 会话剩余 ${m}:${s}`;el.classList.toggle('warn',sessionRemaining<=300&&sessionRemaining>60);el.classList.toggle('danger',sessionRemaining<=60)}if(sessionRemaining===300)openInfo('会话即将过期','剩余5分钟，请完成或保存当前工作。');if(sessionRemaining===60&&!sessionWarned){sessionWarned=true;openModal('<div class="modalhead"><h2>会话将在1分钟后结束</h2></div><div class="message">继续会话将记录一次有效用户操作；如不处理，系统会自动退出并清除未保存草稿。</div><div class="modalactions"><button class="btn warn" onclick="closeModal();prototypeLogout()">立即退出</button><button class="btn primary" onclick="prototypeExtendSession()">延长会话</button></div>')}if(sessionRemaining===0)prototypeLogout()},1000);
   setTimeout(apply,0);
 })();
